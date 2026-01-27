@@ -25,8 +25,7 @@
         "backgroundColor": "#1c5161"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.imleyy.grvzapp",
-      "usesCleartextTraffic": false
+      "package": "com.imleyy.grvzapp"
     },
     "web": {
       "favicon": "./assets/GRVZLogo.png"
