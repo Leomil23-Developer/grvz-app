@@ -32,6 +32,8 @@ yarn-error.*
 
 # local env files
 .env*.local
+# ensure real .env files are not committed
+.env
 
 # typescript
 *.tsbuildinfo

@@ -8,6 +8,13 @@ const Clipboard = require('expo-clipboard') as {
 import { MaterialIcons } from '@expo/vector-icons';
 import { Camera as CameraModule, CameraView } from 'expo-camera';
 import GradientBackground from "../../components/background"; 
+// API base URL (use LAN IP for device/emulator). Prefer creating app/config.ts exporting API_URL for production.
+const API_URL: string = ((): string => {
+  // runtime override via global, then process.env, otherwise fallback to a sensible default for emulators/devices
+  if (typeof (global as any).API_URL === 'string') return (global as any).API_URL;
+  if (typeof process !== 'undefined' && (process as any).env?.API_URL) return (process as any).env.API_URL;
+  return 'http://10.0.2.2:3000';
+})();
 
 
 export default function Home({ user, onLogout }: { user: any; onLogout: () => void }) {
@@ -17,7 +24,6 @@ export default function Home({ user, onLogout }: { user: any; onLogout: () => vo
   const HEADER_HEIGHT = 56;
   // Extra gap between header and main content
   const HEADER_GAP = 30;  // API base URL (use LAN IP for device/emulator)
-  const API_URL = 'http://192.168.1.10:4000';
 
   // Silent helper to fetch total points for current account (returns number or null on error)
   const getPoints = async (): Promise<number | null> => {

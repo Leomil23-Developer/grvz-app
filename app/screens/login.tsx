@@ -2,6 +2,19 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import GradientBackground from "../../components/background"; 
+// Project-level config (create c:\workspace\grvz-portal-app\grvz-app\config.ts and export API_URL there to override).
+// Use a runtime require + fallback so the app still compiles when ../../config is not present.
+const API_URL: string = (() => {
+  try {
+    // silence static TS import resolution by requiring at runtime
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cfg = require('../../config');
+    return (cfg && cfg.API_URL) || 'http://10.0.2.2:3000';
+  } catch {
+    // default for emulators / development; change to your device IP if testing on a physical device
+    return 'http://10.0.2.2:3000';
+  }
+})();
 
 export default function Login({ onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,9 +25,7 @@ export default function Login({ onLoginSuccess }) {
   const handleLogin = async () => {
     try {
       // Use your computer's IP address instead of localhost for physical devices
-      const API_URL = 'http://192.168.1.10:4000';
-      
-      const res = await fetch(API_URL + '/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
