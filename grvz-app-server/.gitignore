@@ -1,0 +1,10 @@
+# Node
+node_modules/
+
+# local env files
+.env
+.env.local
+
+# Prisma artifacts
+/prisma/migrations/
+/prisma/dev.db

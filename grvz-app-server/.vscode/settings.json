@@ -1,0 +1,10 @@
+{
+  "prisma.showPrismaDataPlatformNotification": false,
+  "prisma.trace.server": "off",
+  "[prisma]": {
+    "editor.defaultFormatter": "prisma.prisma"
+  },
+  "files.associations": {
+    "*.prisma": "prisma"
+  }
+}

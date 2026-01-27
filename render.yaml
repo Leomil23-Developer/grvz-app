@@ -1,0 +1,18 @@
+version: "1"
+
+services:
+  - type: web
+    name: grvz-app-server
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: grvz-app-server
+    buildCommand: npm ci
+    startCommand: npm run start
+    healthCheckPath: /_health
+    envVars:
+      - key: DATABASE_URL
+      - key: JWT_SECRET
+      - key: JWT_REFRESH_SECRET
+      - key: CORS_ORIGIN

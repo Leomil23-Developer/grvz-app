@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id                                    String        @id @default(dbgenerated("(gen_random_uuid())::text"))
+  username                              String        @unique
+  password                              String
+  recruiter_id                          String?
+  accntStatus                           String?       @db.VarChar(50)
+  created_at                            DateTime      @default(now())
+  fullname                              String?       @db.VarChar(200)
+  email                                 String?
+  resetToken                            String?
+  resetTokenExpiry                      DateTime?
+  Members_Account_recruiter_idToMembers Members?      @relation("Account_recruiter_idToMembers", fields: [recruiter_id], references: [id], onUpdate: NoAction)
+  AccountRole                           AccountRole[]
+  Attendance                            Attendance[]
+  Members_Members_account_idToAccount   Members[]     @relation("Members_account_idToAccount")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model AccountRole {
+  id         Int      @id @default(autoincrement())
+  account_id String
+  role_id    String
+  created_at DateTime @default(now())
+  Account    Account  @relation(fields: [account_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([account_id, role_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model AdminNotification {
+  id           Int      @id @default(autoincrement())
+  recipient_id String
+  sender_id    String
+  title        String   @db.VarChar(255)
+  message      String
+  severity     String   @default("info") @db.VarChar(20)
+  created_at   DateTime @default(now())
+
+  @@index([created_at])
+  @@index([recipient_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  event_id   Int
+  account_id String
+  points     Int
+  created_at DateTime @default(now())
+  Account    Account  @relation(fields: [account_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Event      Event    @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([event_id, account_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Chapters {
+  id           Int      @id @default(autoincrement())
+  chapter_name String   @db.VarChar(200)
+  leader       String?
+  asst_leader  String?
+  created_by   String?
+  created_at   DateTime @default(now())
+  Event        Event[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Event {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(200)
+  address    String?
+  event_type String       @db.VarChar(100)
+  hosted_by  Int?
+  created_by String?
+  created_at DateTime     @default(now())
+  event_date DateTime?
+  Attendance Attendance[]
+  Chapters   Chapters?    @relation(fields: [hosted_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Members {
+  id                                    String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  account_id                            String?
+  member_type                           String?   @db.VarChar(100)
+  first_name                            String?   @db.VarChar(150)
+  last_name                             String?   @db.VarChar(150)
+  middle_name                           String?   @db.VarChar(150)
+  nick_name                             String?   @db.VarChar(150)
+  email                                 String?   @db.VarChar(200)
+  contact_number                        String?   @db.VarChar(50)
+  birthday                              DateTime? @db.Date
+  blood_type                            String?   @db.VarChar(10)
+  address_line_1                        String?
+  street                                String?   @db.VarChar(200)
+  city_municipality                     String?   @db.VarChar(200)
+  province                              String?   @db.VarChar(200)
+  location                              String?   @db.VarChar(200)
+  chapter                               String?   @db.VarChar(200)
+  status                                String?   @db.VarChar(100)
+  gravis_color                          String?   @db.VarChar(100)
+  gravis_version                        String?   @db.VarChar(100)
+  mv_file_plate_no                      String?   @db.VarChar(100)
+  dl_no                                 String?   @db.VarChar(100)
+  dl_type                               String?   @db.VarChar(50)
+  dl_expiration_date                    DateTime? @db.Date
+  or_expiration_date                    DateTime? @db.Date
+  emergency_contact_person              String?   @db.VarChar(200)
+  emergency_contact_no                  String?   @db.VarChar(50)
+  emergency_relationship                String?   @db.VarChar(100)
+  rider_name                            String?   @db.VarChar(200)
+  religion                              String?   @db.VarChar(100)
+  created_at                            DateTime  @default(now())
+  Account_Account_recruiter_idToMembers Account[] @relation("Account_recruiter_idToMembers")
+  Account_Members_account_idToAccount   Account?  @relation("Members_account_idToAccount", fields: [account_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model NotificationReadStatus {
+  id               Int      @id @default(autoincrement())
+  account_id       String
+  notification_key String   @db.VarChar(255)
+  read_at          DateTime @default(now())
+
+  @@unique([account_id, notification_key])
+  @@index([account_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Role {
+  id          String        @id @default(dbgenerated("(gen_random_uuid())::text"))
+  role_name   String        @unique @db.VarChar(50)
+  created_at  DateTime      @default(now())
+  AccountRole AccountRole[]
+}
