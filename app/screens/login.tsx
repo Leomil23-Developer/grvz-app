@@ -1,36 +1,33 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import GradientBackground from "../../components/background"; 
-// Project-level config (create c:\workspace\grvz-portal-app\grvz-app\config.ts and export API_URL there to override).
-// Use a runtime require + fallback so the app still compiles when ../../config is not present.
-const API_URL: string = (() => {
-  try {
-    // silence static TS import resolution by requiring at runtime
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cfg = require('../../config');
-    return (cfg && cfg.API_URL) || 'http://10.0.2.2:3000';
-  } catch {
-    // default for emulators / development; change to your device IP if testing on a physical device
-    return 'http://10.0.2.2:3000';
-  }
-})();
+import { API_URL } from '../config';
 
 export default function Login({ onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(__DEV__ ? 'admin-leyy' : '');
+  const [password, setPassword] = useState(__DEV__ ? 'Leomil39' : '');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
-      // Use your computer's IP address instead of localhost for physical devices
+      console.log('🔐 Attempting login to:', API_URL);
+      console.log('📤 Username:', username);
+      
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
+      
+      console.log('📥 Response status:', res.status);
+      
       const data = await res.json();
+      console.log('📥 Response data:', data);
+      
       if (!res.ok) {
         Alert.alert('Login failed', data.error || 'Invalid credentials');
         return;
@@ -41,8 +38,10 @@ export default function Login({ onLoginSuccess }) {
       // TODO: store tokens securely (AsyncStorage or secure store)
       onLoginSuccess(data.user);
     } catch (err) {
-      console.error(err);
+      console.error('❌ Login error:', err);
       Alert.alert('Connection Error', 'Cannot connect to server. Make sure the server is running and the IP address is correct.');
+    } finally {
+      setLoading(false);
     }
   }; 
 
@@ -93,8 +92,17 @@ export default function Login({ onLoginSuccess }) {
             <Text style={styles.rememberText}>Remember me</Text>
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} activeOpacity={0.9}>
-            <Text style={styles.loginButtonText}>Login</Text>
+          <TouchableOpacity 
+            style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
+            onPress={handleLogin} 
+            activeOpacity={0.9}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#02323a" size="small" />
+            ) : (
+              <Text style={styles.loginButtonText}>Login</Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -190,6 +198,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  loginButtonDisabled: {
+    opacity: 0.6,
   },
   loginButtonText: {
     color: "#02323a",

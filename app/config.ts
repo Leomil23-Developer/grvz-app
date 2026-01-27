@@ -10,11 +10,13 @@ import Constants from 'expo-constants';
  */
 const extra = (Constants as any)?.expoConfig?.extra ?? (Constants as any)?.manifest?.extra ?? {};
 
+// 🔧 DEV OVERRIDE: Temporarily force production URL for testing
+const DEV_OVERRIDE = 'https://grvz-app.onrender.com'; // Set to null to disable
+
 export const API_URL: string =
+  DEV_OVERRIDE ||
   (extra && extra.API_URL) ||
-  // allow test-time injection via global for quick local overrides
   (global as any)?.API_URL ||
-  // Fallback to production URL (hardcoded for safety)
   'https://grvz-app.onrender.com';
 
 console.log('🔗 API_URL resolved to:', API_URL);
