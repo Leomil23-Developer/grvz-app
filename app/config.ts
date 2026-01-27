@@ -14,12 +14,10 @@ export const API_URL: string =
   (extra && extra.API_URL) ||
   // allow test-time injection via global for quick local overrides
   (global as any)?.API_URL ||
-  (typeof process !== 'undefined' && (process as any).env?.EXPO_PUBLIC_API_URL) ||
-  (__DEV__ ? 'http://localhost:4000' : 'https://api.example.com');
+  // Fallback to production URL (hardcoded for safety)
+  'https://grvz-app.onrender.com';
 
-if (!__DEV__ && API_URL.startsWith('http://')) {
-  console.warn('WARNING: API_URL is using insecure HTTP in a non-dev build — ensure EXPO_PUBLIC_API_URL is set to an https:// endpoint for production builds.');
-}
+console.log('🔗 API_URL resolved to:', API_URL);
 
 export const api = (path: string) => `${API_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 
