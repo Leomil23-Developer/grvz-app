@@ -11,7 +11,7 @@ import GradientBackground from "../../components/background";
 import { API_URL } from '../config';
 
 
-export default function Home({ user, onLogout }: { user: any; onLogout: () => void }) {
+export default function Home({ user, onLogout, onOpenProfile }: { user: any; onLogout: () => void; onOpenProfile?: () => void }) {
   const avatarSource = user?.avatar ? { uri: user.avatar } : require('../../assets/GRVZLogo.png');
   const topOffset = (Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 12) + 8;
   // Estimated header height (title + padding). Used to offset the ScrollView so it doesn't overlap the header.
@@ -251,8 +251,8 @@ export default function Home({ user, onLogout }: { user: any; onLogout: () => vo
             <View style={{ width: 44 }} />
           </View>
 
-          <ScrollView style={styles.contentScroll} contentContainerStyle={[styles.contentContainer, { paddingTop: HEADER_HEIGHT + topOffset + HEADER_GAP }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}>
-            <>
+          <View style={[styles.contentContainer, { paddingTop: HEADER_HEIGHT + topOffset + HEADER_GAP }]}>
+            <View style={styles.fixedContent}>
               <Text style={styles.welcome}>{"Welcome back,"}</Text>
               {user?.fullname ? <Text style={styles.username}>{user.fullname}</Text> : null}
 
@@ -277,32 +277,43 @@ export default function Home({ user, onLogout }: { user: any; onLogout: () => vo
                   </TouchableOpacity>
                   <Text style={styles.actionLabelLarge}>Logout</Text>
                 </View>
+
+                <View style={styles.actionItemLarge}>
+                  <TouchableOpacity style={styles.actionButtonLarge} onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel="Profile">
+                    <MaterialIcons name="person" size={28} color="#fff" />
+                  </TouchableOpacity>
+                  <Text style={styles.actionLabelLarge}>Profile</Text>
+                </View>
               </View> 
 
-              {events.length > 0 ? (
-                <>
-                  <Text style={styles.listTitle}>Events</Text>
-                  <View style={styles.eventsList}>
-                    {events.map((ev: any) => (
-                <TouchableOpacity style={styles.eventItem} key={ev.id} onPress={() => handleEventPress(ev)} accessibilityRole="button" accessibilityLabel={`Open scanner for ${ev.name}`}>
-                      <View style={styles.eventRowLeft}>
-                        <Text style={styles.eventTitle}>{ev.name}</Text>
-                        <Text style={styles.eventMeta}>{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : '—'}{ev.Chapters?.chapter_name ? ` • Hosted by ${ev.Chapters.chapter_name}` : ''}</Text>
-                      </View>
+              {events.length > 0 && <Text style={styles.listTitle}>Events</Text>}
+            </View>
 
-                      <View style={styles.attendeeBadge}>
-                        <Text style={styles.attendeeBadgeText}>{ev._count?.Attendance ?? 0}</Text>
-                      </View>
-                    </TouchableOpacity>
-                    ))} 
-                  </View>
-                </>
-              ) : eventsLoaded ? (
-                <Text style={styles.sectionEmpty}>No events available.</Text>
-              ) : null}
+            {events.length > 0 ? (
+              <ScrollView 
+                style={styles.eventsScrollView} 
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
+                showsVerticalScrollIndicator={true}
+              >
+                <View style={styles.eventsList}>
+                  {events.map((ev: any) => (
+              <TouchableOpacity style={styles.eventItem} key={ev.id} onPress={() => handleEventPress(ev)} accessibilityRole="button" accessibilityLabel={`Open scanner for ${ev.name}`}>
+                    <View style={styles.eventRowLeft}>
+                      <Text style={styles.eventTitle}>{ev.name}</Text>
+                      <Text style={styles.eventMeta}>{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : '—'}{ev.Chapters?.chapter_name ? ` • Hosted by ${ev.Chapters.chapter_name}` : ''}</Text>
+                    </View>
 
-            </>
-          </ScrollView> 
+                    <View style={styles.attendeeBadge}>
+                      <Text style={styles.attendeeBadgeText}>{ev._count?.Attendance ?? 0}</Text>
+                    </View>
+                  </TouchableOpacity>
+                  ))} 
+                </View>
+              </ScrollView>
+            ) : eventsLoaded ? (
+              <Text style={styles.sectionEmpty}>No events available.</Text>
+            ) : null}
+          </View> 
 
           {scannerVisible && (
             <View style={styles.scannerOverlay} pointerEvents="box-none">
@@ -522,11 +533,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   contentContainer: {
-    flexGrow: 1,
-    paddingHorizontal: 12, // reduced padding to give more width
+    flex: 1,
+    paddingHorizontal: 12,
     paddingVertical: 24,
-    justifyContent: 'flex-start',
-    alignItems: 'stretch',
+  },
+  fixedContent: {
+    paddingBottom: 16,
+  },
+  eventsScrollView: {
+    flex: 1,
   },
   scannerOverlay: {
     position: 'absolute',

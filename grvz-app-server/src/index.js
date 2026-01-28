@@ -149,31 +149,35 @@ app.get('/api/accounts/:id', async (req, res) => {
 app.get('/api/members/account/:accountId', async (req, res) => {
   try {
     const { accountId } = req.params;
-    const member = await prisma.members.findFirst({
-      where: { account_id: accountId },
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        chapter: true,
-        email: true,
-        contact_number: true,
-        member_type: true,
-      }
-    });
+    // return full member record (all columns) for the account
+    const member = await prisma.members.findFirst({ where: { account_id: accountId } });
     if (!member) return res.status(404).json({ error: 'Member not found' });
 
-    return res.json({
-      id: member.id,
-      firstName: member.first_name,
-      lastName: member.last_name,
-      chapter: member.chapter,
-      email: member.email,
-      contactNumber: member.contact_number,
-      memberType: member.member_type,
-    });
+    // return full member object (snake_case) to the client so the app can consume all columns
+    return res.json(member);
   } catch (err) {
     console.error(err);
+    return res.status(500).json({ error: 'internal_server_error' });
+  }
+});
+
+// PUT /api/members/:id - Update member record by id
+app.put('/api/members/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body || {};
+    // restrict updates to known member fields to avoid accidental writes
+    const allowed = [
+      'member_type','first_name','last_name','middle_name','nick_name','email','contact_number','birthday','blood_type',
+      'address_line_1','street','city_municipality','province','location','chapter','status','religion'
+    ];
+    const data = {};
+    for (const k of allowed) if (Object.prototype.hasOwnProperty.call(updates, k)) data[k] = updates[k];
+
+    const updated = await prisma.members.update({ where: { id }, data });
+    return res.json(updated);
+  } catch (err) {
+    console.error('update member error', err);
     return res.status(500).json({ error: 'internal_server_error' });
   }
 });

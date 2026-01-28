@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Login from './app/screens/login';
 import Home from './app/screens/home';
+import Profile from './app/screens/profile';
 import { API_URL } from './app/config';
 
 // Prevent accidental production builds with a placeholder API_URL
@@ -12,6 +14,7 @@ if (process.env.NODE_ENV === 'production' && API_URL && API_URL.includes('api.ex
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -21,16 +24,22 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     setIsLoggedIn(false);
+    setShowProfile(false);
   };
 
+  const openProfile = () => setShowProfile(true);
+  const closeProfile = () => setShowProfile(false);
+
   return (
-    <>
-      {isLoggedIn ? (
-        <Home user={user} onLogout={handleLogout} />
-      ) : (
+    <SafeAreaProvider>
+      {!isLoggedIn ? (
         <Login onLoginSuccess={handleLoginSuccess} />
+      ) : showProfile ? (
+        <Profile user={user} onClose={closeProfile} onLogout={handleLogout} />
+      ) : (
+        <Home user={user} onLogout={handleLogout} onOpenProfile={openProfile} />
       )}
       <StatusBar style="light" />
-    </>
+    </SafeAreaProvider>
   );
 }

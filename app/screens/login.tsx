@@ -104,6 +104,40 @@ export default function Login({ onLoginSuccess }) {
               <Text style={styles.loginButtonText}>Login</Text>
             )}
           </TouchableOpacity>
+
+          {/* Separator */}
+          <View style={styles.separatorRow}>
+            <View style={styles.sepLine} />
+            <Text style={styles.sepText}>Follow us</Text>
+            <View style={styles.sepLine} />
+          </View>
+
+          {/* Social login buttons */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={() => console.log('Facebook login')}
+              accessibilityLabel="Login with Facebook"
+            >
+              <Image source={{ uri: 'https://img.icons8.com/color/48/000000/facebook-new.png' }} style={styles.socialLogo} resizeMode="contain" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={() => console.log('Discord login')}
+              accessibilityLabel="Login with Discord"
+            >
+              <Image source={{ uri: 'https://img.icons8.com/color/48/000000/discord-logo.png' }} style={styles.socialLogo} resizeMode="contain" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.socialButton}
+              onPress={() => console.log('TikTok login')}
+              accessibilityLabel="Login with TikTok"
+            >
+              <Image source={{ uri: 'https://img.icons8.com/color/48/000000/tiktok--v1.png' }} style={styles.socialLogo} resizeMode="contain" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </GradientBackground>
@@ -187,12 +221,12 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     width: "100%",
-    backgroundColor: "#06b6d4",
+    backgroundColor: "#1ba9a6",
     height: 56,
-    borderRadius: 28,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10,
+    marginTop: 20,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -206,5 +240,49 @@ const styles = StyleSheet.create({
     color: "#02323a",
     fontSize: 18,
     fontWeight: "700",
+  },
+  separatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
+    marginBottom: 16,
+  },
+  sepLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    marginHorizontal: 12,
+  },
+  sepText: {
+    color: '#fff',
+    opacity: 0.9,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  socialRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 14,
+  },
+  socialButton: {
+    flex: 1,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 8,
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    borderColor: "transparent",
+    elevation: 0,
+    shadowColor: "transparent",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+  },
+  socialLogo: {
+    width: 40,
+    height: 40,
   }
 });
