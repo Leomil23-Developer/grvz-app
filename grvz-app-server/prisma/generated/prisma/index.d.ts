@@ -1780,7 +1780,6 @@ export namespace Prisma {
     accntStatus: string | null
     created_at: Date | null
     fullname: string | null
-    email: string | null
     resetToken: string | null
     resetTokenExpiry: Date | null
   }
@@ -1793,7 +1792,6 @@ export namespace Prisma {
     accntStatus: string | null
     created_at: Date | null
     fullname: string | null
-    email: string | null
     resetToken: string | null
     resetTokenExpiry: Date | null
   }
@@ -1806,7 +1804,6 @@ export namespace Prisma {
     accntStatus: number
     created_at: number
     fullname: number
-    email: number
     resetToken: number
     resetTokenExpiry: number
     _all: number
@@ -1821,7 +1818,6 @@ export namespace Prisma {
     accntStatus?: true
     created_at?: true
     fullname?: true
-    email?: true
     resetToken?: true
     resetTokenExpiry?: true
   }
@@ -1834,7 +1830,6 @@ export namespace Prisma {
     accntStatus?: true
     created_at?: true
     fullname?: true
-    email?: true
     resetToken?: true
     resetTokenExpiry?: true
   }
@@ -1847,7 +1842,6 @@ export namespace Prisma {
     accntStatus?: true
     created_at?: true
     fullname?: true
-    email?: true
     resetToken?: true
     resetTokenExpiry?: true
     _all?: true
@@ -1933,7 +1927,6 @@ export namespace Prisma {
     accntStatus: string | null
     created_at: Date
     fullname: string | null
-    email: string | null
     resetToken: string | null
     resetTokenExpiry: Date | null
     _count: AccountCountAggregateOutputType | null
@@ -1963,7 +1956,6 @@ export namespace Prisma {
     accntStatus?: boolean
     created_at?: boolean
     fullname?: boolean
-    email?: boolean
     resetToken?: boolean
     resetTokenExpiry?: boolean
     Members_Account_recruiter_idToMembers?: boolean | Account$Members_Account_recruiter_idToMembersArgs<ExtArgs>
@@ -1981,7 +1973,6 @@ export namespace Prisma {
     accntStatus?: boolean
     created_at?: boolean
     fullname?: boolean
-    email?: boolean
     resetToken?: boolean
     resetTokenExpiry?: boolean
     Members_Account_recruiter_idToMembers?: boolean | Account$Members_Account_recruiter_idToMembersArgs<ExtArgs>
@@ -1995,7 +1986,6 @@ export namespace Prisma {
     accntStatus?: boolean
     created_at?: boolean
     fullname?: boolean
-    email?: boolean
     resetToken?: boolean
     resetTokenExpiry?: boolean
     Members_Account_recruiter_idToMembers?: boolean | Account$Members_Account_recruiter_idToMembersArgs<ExtArgs>
@@ -2009,12 +1999,11 @@ export namespace Prisma {
     accntStatus?: boolean
     created_at?: boolean
     fullname?: boolean
-    email?: boolean
     resetToken?: boolean
     resetTokenExpiry?: boolean
   }
 
-  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "recruiter_id" | "accntStatus" | "created_at" | "fullname" | "email" | "resetToken" | "resetTokenExpiry", ExtArgs["result"]["account"]>
+  export type AccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "username" | "password" | "recruiter_id" | "accntStatus" | "created_at" | "fullname" | "resetToken" | "resetTokenExpiry", ExtArgs["result"]["account"]>
   export type AccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Members_Account_recruiter_idToMembers?: boolean | Account$Members_Account_recruiter_idToMembersArgs<ExtArgs>
     AccountRole?: boolean | Account$AccountRoleArgs<ExtArgs>
@@ -2045,7 +2034,6 @@ export namespace Prisma {
       accntStatus: string | null
       created_at: Date
       fullname: string | null
-      email: string | null
       resetToken: string | null
       resetTokenExpiry: Date | null
     }, ExtArgs["result"]["account"]>
@@ -2482,7 +2470,6 @@ export namespace Prisma {
     readonly accntStatus: FieldRef<"Account", 'String'>
     readonly created_at: FieldRef<"Account", 'DateTime'>
     readonly fullname: FieldRef<"Account", 'String'>
-    readonly email: FieldRef<"Account", 'String'>
     readonly resetToken: FieldRef<"Account", 'String'>
     readonly resetTokenExpiry: FieldRef<"Account", 'DateTime'>
   }
@@ -12068,7 +12055,6 @@ export namespace Prisma {
     accntStatus: 'accntStatus',
     created_at: 'created_at',
     fullname: 'fullname',
-    email: 'email',
     resetToken: 'resetToken',
     resetTokenExpiry: 'resetTokenExpiry'
   };
@@ -12291,7 +12277,6 @@ export namespace Prisma {
     accntStatus?: StringNullableFilter<"Account"> | string | null
     created_at?: DateTimeFilter<"Account"> | Date | string
     fullname?: StringNullableFilter<"Account"> | string | null
-    email?: StringNullableFilter<"Account"> | string | null
     resetToken?: StringNullableFilter<"Account"> | string | null
     resetTokenExpiry?: DateTimeNullableFilter<"Account"> | Date | string | null
     Members_Account_recruiter_idToMembers?: XOR<MembersNullableScalarRelationFilter, MembersWhereInput> | null
@@ -12308,7 +12293,6 @@ export namespace Prisma {
     accntStatus?: SortOrderInput | SortOrder
     created_at?: SortOrder
     fullname?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
     resetToken?: SortOrderInput | SortOrder
     resetTokenExpiry?: SortOrderInput | SortOrder
     Members_Account_recruiter_idToMembers?: MembersOrderByWithRelationInput
@@ -12328,7 +12312,6 @@ export namespace Prisma {
     accntStatus?: StringNullableFilter<"Account"> | string | null
     created_at?: DateTimeFilter<"Account"> | Date | string
     fullname?: StringNullableFilter<"Account"> | string | null
-    email?: StringNullableFilter<"Account"> | string | null
     resetToken?: StringNullableFilter<"Account"> | string | null
     resetTokenExpiry?: DateTimeNullableFilter<"Account"> | Date | string | null
     Members_Account_recruiter_idToMembers?: XOR<MembersNullableScalarRelationFilter, MembersWhereInput> | null
@@ -12345,7 +12328,6 @@ export namespace Prisma {
     accntStatus?: SortOrderInput | SortOrder
     created_at?: SortOrder
     fullname?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
     resetToken?: SortOrderInput | SortOrder
     resetTokenExpiry?: SortOrderInput | SortOrder
     _count?: AccountCountOrderByAggregateInput
@@ -12364,7 +12346,6 @@ export namespace Prisma {
     accntStatus?: StringNullableWithAggregatesFilter<"Account"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Account"> | Date | string
     fullname?: StringNullableWithAggregatesFilter<"Account"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Account"> | string | null
     resetToken?: StringNullableWithAggregatesFilter<"Account"> | string | null
     resetTokenExpiry?: DateTimeNullableWithAggregatesFilter<"Account"> | Date | string | null
   }
@@ -12977,7 +12958,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     Members_Account_recruiter_idToMembers?: MembersCreateNestedOneWithoutAccount_Account_recruiter_idToMembersInput
@@ -12994,7 +12974,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     AccountRole?: AccountRoleUncheckedCreateNestedManyWithoutAccountInput
@@ -13009,7 +12988,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Members_Account_recruiter_idToMembers?: MembersUpdateOneWithoutAccount_Account_recruiter_idToMembersNestedInput
@@ -13026,7 +13004,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     AccountRole?: AccountRoleUncheckedUpdateManyWithoutAccountNestedInput
@@ -13042,7 +13019,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
   }
@@ -13054,7 +13030,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -13067,7 +13042,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -13808,7 +13782,6 @@ export namespace Prisma {
     accntStatus?: SortOrder
     created_at?: SortOrder
     fullname?: SortOrder
-    email?: SortOrder
     resetToken?: SortOrder
     resetTokenExpiry?: SortOrder
   }
@@ -13821,7 +13794,6 @@ export namespace Prisma {
     accntStatus?: SortOrder
     created_at?: SortOrder
     fullname?: SortOrder
-    email?: SortOrder
     resetToken?: SortOrder
     resetTokenExpiry?: SortOrder
   }
@@ -13834,7 +13806,6 @@ export namespace Prisma {
     accntStatus?: SortOrder
     created_at?: SortOrder
     fullname?: SortOrder
-    email?: SortOrder
     resetToken?: SortOrder
     resetTokenExpiry?: SortOrder
   }
@@ -15352,7 +15323,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     Members_Account_recruiter_idToMembers?: MembersCreateNestedOneWithoutAccount_Account_recruiter_idToMembersInput
@@ -15368,7 +15338,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     Attendance?: AttendanceUncheckedCreateNestedManyWithoutAccountInput
@@ -15415,7 +15384,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Members_Account_recruiter_idToMembers?: MembersUpdateOneWithoutAccount_Account_recruiter_idToMembersNestedInput
@@ -15431,7 +15399,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Attendance?: AttendanceUncheckedUpdateManyWithoutAccountNestedInput
@@ -15468,7 +15435,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     Members_Account_recruiter_idToMembers?: MembersCreateNestedOneWithoutAccount_Account_recruiter_idToMembersInput
@@ -15484,7 +15450,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     AccountRole?: AccountRoleUncheckedCreateNestedManyWithoutAccountInput
@@ -15540,7 +15505,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Members_Account_recruiter_idToMembers?: MembersUpdateOneWithoutAccount_Account_recruiter_idToMembersNestedInput
@@ -15556,7 +15520,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     AccountRole?: AccountRoleUncheckedUpdateManyWithoutAccountNestedInput
@@ -15752,7 +15715,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     AccountRole?: AccountRoleCreateNestedManyWithoutAccountInput
@@ -15767,7 +15729,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     AccountRole?: AccountRoleUncheckedCreateNestedManyWithoutAccountInput
@@ -15792,7 +15753,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     Members_Account_recruiter_idToMembers?: MembersCreateNestedOneWithoutAccount_Account_recruiter_idToMembersInput
@@ -15808,7 +15768,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     AccountRole?: AccountRoleUncheckedCreateNestedManyWithoutAccountInput
@@ -15847,7 +15806,6 @@ export namespace Prisma {
     accntStatus?: StringNullableFilter<"Account"> | string | null
     created_at?: DateTimeFilter<"Account"> | Date | string
     fullname?: StringNullableFilter<"Account"> | string | null
-    email?: StringNullableFilter<"Account"> | string | null
     resetToken?: StringNullableFilter<"Account"> | string | null
     resetTokenExpiry?: DateTimeNullableFilter<"Account"> | Date | string | null
   }
@@ -15870,7 +15828,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     Members_Account_recruiter_idToMembers?: MembersUpdateOneWithoutAccount_Account_recruiter_idToMembersNestedInput
@@ -15886,7 +15843,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     AccountRole?: AccountRoleUncheckedUpdateManyWithoutAccountNestedInput
@@ -16189,7 +16145,6 @@ export namespace Prisma {
     accntStatus?: string | null
     created_at?: Date | string
     fullname?: string | null
-    email?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
   }
@@ -16201,7 +16156,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     AccountRole?: AccountRoleUpdateManyWithoutAccountNestedInput
@@ -16216,7 +16170,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     AccountRole?: AccountRoleUncheckedUpdateManyWithoutAccountNestedInput
@@ -16231,7 +16184,6 @@ export namespace Prisma {
     accntStatus?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     fullname?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

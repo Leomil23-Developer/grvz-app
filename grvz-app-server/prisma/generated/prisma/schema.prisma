@@ -15,7 +15,6 @@ model Account {
   accntStatus                           String?       @db.VarChar(50)
   created_at                            DateTime      @default(now())
   fullname                              String?       @db.VarChar(200)
-  email                                 String?
   resetToken                            String?
   resetTokenExpiry                      DateTime?
   Members_Account_recruiter_idToMembers Members?      @relation("Account_recruiter_idToMembers", fields: [recruiter_id], references: [id], onUpdate: NoAction)

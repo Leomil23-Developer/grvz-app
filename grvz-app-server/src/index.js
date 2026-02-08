@@ -39,16 +39,16 @@ if (process.env.NODE_ENV === 'production') {
 // POST /auth/register
 app.post('/auth/register', async (req, res) => {
   try {
-    const { username, password, fullname, email } = req.body;
+    const { username, password, fullname } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Missing username or password' });
 
     const existing = await prisma.account.findUnique({ where: { username } });
     if (existing) return res.status(409).json({ error: 'Username already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const account = await prisma.account.create({ data: { username, password: hashedPassword, fullname, email } });
+    const account = await prisma.account.create({ data: { username, password: hashedPassword, fullname } });
 
-    return res.status(201).json({ id: account.id, username: account.username, fullname: account.fullname, email: account.email });
+    return res.status(201).json({ id: account.id, username: account.username, fullname: account.fullname });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'internal_server_error' });
@@ -67,7 +67,7 @@ app.post('/auth/login', async (req, res) => {
 
   const access = jwt.sign({ sub: user.id, username: user.username }, JWT_SECRET, { expiresIn: '8h' });
 
-  return res.json({ access, user: { id: user.id, username: user.username, fullname: user.fullname, email: user.email } });
+  return res.json({ access, user: { id: user.id, username: user.username, fullname: user.fullname } });
 });
 
 app.post('/auth/refresh', async (req, res) => {
@@ -108,7 +108,6 @@ app.get('/api/accounts', async (req, res) => {
         id: true,
         username: true,
         fullname: true,
-        email: true,
         accntStatus: true,
         created_at: true,
         recruiter_id: true
@@ -131,7 +130,6 @@ app.get('/api/accounts/:id', async (req, res) => {
         id: true,
         username: true,
         fullname: true,
-        email: true,
         accntStatus: true,
         created_at: true,
         recruiter_id: true
@@ -186,11 +184,13 @@ app.put('/api/members/:id', async (req, res) => {
 app.get('/api/attendance/total/:accountId', async (req, res) => {
   try {
     const { accountId } = req.params;
+    console.log('🎯 Fetching total points for accountId:', accountId);
     const result = await prisma.attendance.aggregate({
       where: { account_id: accountId },
       _sum: { points: true }
     });
     const totalPoints = result._sum.points || 0;
+    console.log('🎯 Total points result:', totalPoints, 'for accountId:', accountId);
     return res.json({ totalPoints });
   } catch (err) {
     console.error('get total points error', err);
@@ -253,11 +253,10 @@ app.get('/api/members/account/:accountId/qr', async (req, res) => {
 app.put('/api/accounts/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { fullname, email, accntStatus } = req.body;
+    const { fullname, accntStatus } = req.body;
     
     const updateData = {};
     if (fullname !== undefined) updateData.fullname = fullname;
-    if (email !== undefined) updateData.email = email;
     if (accntStatus !== undefined) updateData.accntStatus = accntStatus;
 
     const account = await prisma.account.update({
@@ -267,7 +266,6 @@ app.put('/api/accounts/:id', async (req, res) => {
         id: true,
         username: true,
         fullname: true,
-        email: true,
         accntStatus: true,
         created_at: true
       }
@@ -394,45 +392,29 @@ app.post('/api/events/:eventId/attendance', async (req, res) => {
     const first = payload.firstname ?? payload.firstName ?? '';
     const last = payload.lastname ?? payload.lastName ?? '';
     const fullname = [first, last].filter(Boolean).join(' ').trim();
-    const email = payload.email ?? payload.Email ?? null;
-    const username = email ? email.split('@')[0] : scannedId;
+    const username = fullname ? fullname.toLowerCase().replace(/\s+/g, '') : scannedId;
 
     // Hash a random password for created accounts
     const randPwd = Math.random().toString(36).slice(2);
     let hashed;
     try { hashed = await bcrypt.hash(randPwd, 12); } catch (e) { console.error('bcrypt.hash failed', e); hashed = randPwd; }
 
-    console.log('Finding/creating account: id=%s email=%s fullname=%s', scannedId, email, fullname);
+    console.log('Finding/creating account: id=%s fullname=%s', scannedId, fullname);
 
-    // Try to find existing account by id first, then by email
+    // Try to find existing account by id
     let account = await prisma.account.findUnique({ where: { id: scannedId } });
-    if (!account && email) {
-      account = await prisma.account.findFirst({ where: { email } });
-    }
 
     if (account) {
       // Update minimal fields if provided
-      account = await prisma.account.update({ where: { id: account.id }, data: { fullname: fullname || undefined, email: email || undefined } });
+      account = await prisma.account.update({ where: { id: account.id }, data: { fullname: fullname || undefined } });
       console.log('Found existing account, using id=%s', account.id);
     } else {
-      // Create a new account; handle possible unique constraint on email gracefully
+      // Create a new account
       try {
-        account = await prisma.account.create({ data: { id: scannedId, username, password: hashed, fullname: fullname || email || 'Unknown', email: email || undefined } });
+        account = await prisma.account.create({ data: { id: scannedId, username, password: hashed, fullname: fullname || 'Unknown' } });
         console.log('Created new account id=%s', account.id);
       } catch (err) {
-        // If creation fails due to email uniqueness (race), try to find by email and use that account instead
-        if (err?.code === 'P2002' && email) {
-          console.warn('Unique constraint on create (likely email). Attempting to resolve by finding account by email. Error:', err.message);
-          const byEmail = await prisma.account.findFirst({ where: { email } });
-          if (byEmail) {
-            account = byEmail;
-            console.log('Resolved account by email; using id=%s', account.id);
-          } else {
-            throw err; // rethrow if we can't resolve
-          }
-        } else {
-          throw err;
-        }
+        throw err;
       }
     }
 

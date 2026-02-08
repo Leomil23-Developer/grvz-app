@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, TextInput, ActivityIndicator, Alert, Pressable, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, TextInput, ActivityIndicator, Alert, Pressable, Platform, ScrollView, KeyboardAvoidingView, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import GradientBackground from '../../components/background';
@@ -14,6 +14,7 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
   const [pointsLoading, setPointsLoading] = useState(false);
   const [myQrVisible, setMyQrVisible] = useState(false);
   const [myQrUrl, setMyQrUrl] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
   const bottomInset = (insets?.bottom || (Platform.OS === 'ios' ? 34 : 20)) + 12;
 
@@ -112,6 +113,38 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
     return () => { mounted = false; };
   }, [user?.id]);
 
+  // Refresh handler
+  const onRefresh = async () => {
+    if (!user?.id) return;
+    setRefreshing(true);
+    try {
+      // Reload member data
+      setMemberLoading(true);
+      setMemberError(null);
+      const memberPath = `api/members/account/${user.id}`;
+      const memberRes = await fetch(api(memberPath));
+      if (memberRes.ok) {
+        const memberData = await memberRes.json();
+        setMember(memberData);
+      }
+      setMemberLoading(false);
+
+      // Reload points
+      setPointsLoading(true);
+      const pointsPath = `api/attendance/total/${user.id}`;
+      const pointsRes = await fetch(api(pointsPath));
+      if (pointsRes.ok) {
+        const pointsData = await pointsRes.json();
+        setTotalPoints(pointsData.totalPoints || 0);
+      }
+      setPointsLoading(false);
+    } catch (e) {
+      console.error('refresh error', e);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   // Fetch and show QR code
   const fetchMemberAndShowQr = async () => {
     if (!user?.id) { 
@@ -153,7 +186,7 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
             <Image source={user?.avatar ? { uri: user.avatar } : require('../../assets/GRVZLogo.png')} style={styles.avatarLeft} />
             <View style={styles.profileInfo}>
               <Text style={styles.name}>{user?.fullname ?? user?.username ?? '—'}</Text>
-              {user?.email ? <Text style={styles.email}>{user.email}</Text> : null}
+              {member?.email ? <Text style={styles.email}>{member.email}</Text> : null}
               {((member?.status ?? user?.accntStatus ?? user?.status) || (member?.chapter ?? user?.Chapters?.[0]?.chapter_name)) ? (
                 <View style={styles.statusRow}>
                   <View style={styles.statusLeft}>
@@ -192,7 +225,10 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
 
           <View style={styles.tabContent}>
             {activeTab === 'personal' ? (
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              >
                 <View style={styles.vehicleSection}>
                   <Text style={styles.fieldLabel}>Member Type</Text>
                   <Text style={styles.fieldValue}>{member?.member_type ?? '—'}</Text>
@@ -280,7 +316,10 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
                 </View>
               </ScrollView>
             ) : (
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              >
                 <View style={styles.vehicleSection}>
                   <View style={styles.fieldRow}>
                     <View style={styles.fieldHalf}>

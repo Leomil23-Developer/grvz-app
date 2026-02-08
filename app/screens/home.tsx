@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, RefreshControl, Platform, StatusBar, Alert, Modal, Pressable } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, RefreshControl, Platform, StatusBar, Alert, Modal, Pressable, ActivityIndicator } from "react-native";
 import * as Clipboard from 'expo-clipboard';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Camera as CameraModule, CameraView } from 'expo-camera';
@@ -159,6 +159,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
   const [scannerVisible, setScannerVisible] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
+  const [savingAttendance, setSavingAttendance] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -209,6 +210,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
       return;
     }
 
+    setSavingAttendance(true);
     try {
       const res = await fetch(`${API_URL}/api/events/${selectedEvent.id}/attendance`, {
         method: 'POST',
@@ -230,6 +232,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
       console.error('attendance error', err);
       Alert.alert('Error', err.message || 'Failed to record attendance');
     } finally {
+      setSavingAttendance(false);
       setSelectedEvent(null);
     }
   };
@@ -333,6 +336,16 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                 </TouchableOpacity>
               </Pressable>
             </Pressable>
+          </Modal>
+
+          {/* Saving attendance loading modal */}
+          <Modal visible={savingAttendance} transparent animationType="fade">
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalCard}>
+                <ActivityIndicator size="large" color="#06b6d4" />
+                <Text style={[styles.modalTitle, { marginTop: 16 }]}>Saving Attendance...</Text>
+              </View>
+            </View>
           </Modal>
         </View>
       </SafeAreaView>

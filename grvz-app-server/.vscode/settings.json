@@ -2,9 +2,18 @@
   "prisma.showPrismaDataPlatformNotification": false,
   "prisma.trace.server": "off",
   "[prisma]": {
-    "editor.defaultFormatter": "prisma.prisma"
+    "editor.defaultFormatter": "Prisma.prisma"
   },
   "files.associations": {
     "*.prisma": "prisma"
+  },
+  "files.exclude": {
+    "**/prisma/generated/**": true
+  },
+  "search.exclude": {
+    "**/prisma/generated/**": true
+  },
+  "files.watcherExclude": {
+    "**/prisma/generated/**": true
   }
 }

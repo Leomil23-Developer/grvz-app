@@ -128,7 +128,6 @@ exports.Prisma.AccountScalarFieldEnum = {
   accntStatus: 'accntStatus',
   created_at: 'created_at',
   fullname: 'fullname',
-  email: 'email',
   resetToken: 'resetToken',
   resetTokenExpiry: 'resetTokenExpiry'
 };
