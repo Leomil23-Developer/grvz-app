@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, RefreshControl, Platform, StatusBar, Alert, Modal, Pressable } from "react-native";
-// Use require + explicit type for expo-clipboard to avoid "Cannot find module" TypeScript error when types are missing
-const Clipboard = require('expo-clipboard') as {
-  setStringAsync(value: string): Promise<void>;
-  getStringAsync(): Promise<string>;
-};
+import * as Clipboard from 'expo-clipboard';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Camera as CameraModule, CameraView } from 'expo-camera';
 import GradientBackground from "../../components/background"; 

@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "15771635-8c60-4f12-a3b9-d85514fab352"
+      }
+    },
+    "android": {
+      "package": "com.imleyy.grvzapi"
+    }
+  }
+}

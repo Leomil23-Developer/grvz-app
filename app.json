@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/GRVZLogo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/GRVZLogo.png",
       "resizeMode": "contain",
