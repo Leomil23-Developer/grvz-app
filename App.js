@@ -38,7 +38,7 @@ export default function App() {
         <Profile user={user} onClose={closeProfile} onLogout={handleLogout} />
       ) : (
         <Home user={user} onLogout={handleLogout} onOpenProfile={openProfile} />
-      )}
+      )} 
       <StatusBar style="light" />
     </SafeAreaProvider>
   );

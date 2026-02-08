@@ -254,39 +254,14 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
           <View style={[styles.contentContainer, { paddingTop: HEADER_HEIGHT + topOffset + HEADER_GAP }]}>
             <View style={styles.fixedContent}>
               <Text style={styles.welcome}>{"Welcome back,"}</Text>
-              {user?.fullname ? <Text style={styles.username}>{user.fullname}</Text> : null}
+              {user?.fullname ? (
+                <TouchableOpacity style={styles.usernameContainer} onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel="Go to profile">
+                  <Text style={styles.username}>{user.fullname}</Text>
+                  <MaterialIcons name="chevron-right" size={32} color="rgba(255,255,255,0.9)" />
+                </TouchableOpacity>
+              ) : null}
 
-              <View style={styles.actionRowContent}>
-                  <View style={styles.actionItemLarge}>
-                  <TouchableOpacity style={styles.actionButtonLarge} onPress={fetchPoints} accessibilityRole="button" accessibilityLabel="Points">
-                    <MaterialIcons name="emoji-events" size={28} color="#fff" />
-                  </TouchableOpacity>
-                  <Text style={styles.actionLabelLarge}>Points</Text>
-                </View>
-
-                <View style={styles.actionItemLarge}>
-                  <TouchableOpacity style={styles.actionButtonLarge} onPress={fetchMemberAndShowQr} accessibilityRole="button" accessibilityLabel="My QR">
-                    <MaterialIcons name="qr-code" size={28} color="#fff" />
-                  </TouchableOpacity>
-                  <Text style={styles.actionLabelLarge}>My QR</Text>
-                </View>
-
-                <View style={styles.actionItemLarge}>
-                  <TouchableOpacity style={styles.actionButtonLarge} onPress={onLogout} accessibilityRole="button" accessibilityLabel="Logout">
-                    <MaterialIcons name="logout" size={28} color="#fff" />
-                  </TouchableOpacity>
-                  <Text style={styles.actionLabelLarge}>Logout</Text>
-                </View>
-
-                <View style={styles.actionItemLarge}>
-                  <TouchableOpacity style={styles.actionButtonLarge} onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel="Profile">
-                    <MaterialIcons name="person" size={28} color="#fff" />
-                  </TouchableOpacity>
-                  <Text style={styles.actionLabelLarge}>Profile</Text>
-                </View>
-              </View> 
-
-              {events.length > 0 && <Text style={styles.listTitle}>Events</Text>}
+              {events.length > 0 && <Text style={styles.listTitle}>List of Events</Text>}
             </View>
 
             {events.length > 0 ? (
@@ -577,6 +552,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 8,
   },
+  usernameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   username: {
     color: "#fff",
     fontSize: 28,
@@ -587,10 +567,10 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.95)',
     fontSize: 16,
     fontWeight: '800',
-    marginBottom: 6,
+    marginTop: 30,
   },
   eventsList: {
-    marginTop: 8,
+    marginTop: 1,
   },
   eventItem: {
     paddingVertical: 12,

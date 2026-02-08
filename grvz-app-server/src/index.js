@@ -182,6 +182,22 @@ app.put('/api/members/:id', async (req, res) => {
   }
 });
 
+// GET /api/attendance/total/:accountId - Get total points for an account
+app.get('/api/attendance/total/:accountId', async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const result = await prisma.attendance.aggregate({
+      where: { account_id: accountId },
+      _sum: { points: true }
+    });
+    const totalPoints = result._sum.points || 0;
+    return res.json({ totalPoints });
+  } catch (err) {
+    console.error('get total points error', err);
+    return res.status(500).json({ error: 'internal_server_error' });
+  }
+});
+
 // GET /api/members/account/:accountId/qr - Return QR image (base64) for member (requires actor auth)
 const QRCode = require('qrcode');
 app.get('/api/members/account/:accountId/qr', async (req, res) => {

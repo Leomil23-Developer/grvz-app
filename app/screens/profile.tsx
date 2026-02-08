@@ -3,13 +3,17 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, TextInput, Acti
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import GradientBackground from '../../components/background';
-import { api } from '../config';
+import { api, API_URL } from '../config';
 
 export default function Profile({ user, onClose, onLogout }: { user: any; onClose?: () => void; onLogout?: () => void }) {
   const [activeTab, setActiveTab] = useState<'personal' | 'vehicle'>('personal');
   const [member, setMember] = useState<any>(null);
   const [memberLoading, setMemberLoading] = useState(false);
   const [memberError, setMemberError] = useState<string | null>(null);
+  const [totalPoints, setTotalPoints] = useState<number>(0);
+  const [pointsLoading, setPointsLoading] = useState(false);
+  const [myQrVisible, setMyQrVisible] = useState(false);
+  const [myQrUrl, setMyQrUrl] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const bottomInset = (insets?.bottom || (Platform.OS === 'ios' ? 34 : 20)) + 12;
 
@@ -80,6 +84,57 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
     load();
     return () => { mounted = false; };
   }, [user?.id]);
+
+  // Fetch total points
+  useEffect(() => {
+    if (!user?.id) return;
+    let mounted = true;
+    const loadPoints = async () => {
+      setPointsLoading(true);
+      try {
+        const path = `api/attendance/total/${user.id}`;
+        console.log('🎯 Fetching total points:', api(path));
+        const res = await fetch(api(path));
+        if (res.ok) {
+          const data = await res.json();
+          if (mounted) setTotalPoints(data.totalPoints || 0);
+          console.log('🎯 Total points:', data.totalPoints);
+        } else {
+          console.warn('Failed to fetch points:', res.status);
+        }
+      } catch (e) {
+        console.error('fetch points error', e);
+      } finally {
+        if (mounted) setPointsLoading(false);
+      }
+    };
+    loadPoints();
+    return () => { mounted = false; };
+  }, [user?.id]);
+
+  // Fetch and show QR code
+  const fetchMemberAndShowQr = async () => {
+    if (!user?.id) { 
+      Alert.alert('Not logged in', 'Please login to view your QR'); 
+      return; 
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/members/account/${user.id}/qr`, { 
+        headers: { 'X-User-Id': user.id } 
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        Alert.alert('No member', data.error || 'No member record found for this account');
+        return;
+      }
+      setMyQrUrl(`data:image/png;base64,${data.pngBase64}`);
+      setMyQrVisible(true);
+    } catch (e) {
+      console.error('fetchMemberAndShowQr error', e);
+      Alert.alert('Error', 'Unable to load member QR');
+    }
+  };
+
   return (
     <GradientBackground>
       <View style={styles.container}>
@@ -112,6 +167,16 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
                 </View>
               ) : null} 
             </View>
+          </View>
+
+          {/* Total Points Display with QR Button */}
+          <View style={styles.pointsRow}>
+            <Text style={styles.pointsText}>
+              Total Points : {pointsLoading ? '...' : totalPoints.toLocaleString()}
+            </Text>
+            <TouchableOpacity style={styles.qrButton} onPress={fetchMemberAndShowQr} accessibilityRole="button" accessibilityLabel="My QR">
+              <MaterialIcons name="qr-code" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
 
           {/* Tabs */}
@@ -409,6 +474,23 @@ export default function Profile({ user, onClose, onLogout }: { user: any; onClos
               </Pressable>
             </KeyboardAvoidingView>
           </Modal>
+
+          {/* My QR Modal */}
+          <Modal visible={myQrVisible} transparent animationType="fade" onRequestClose={() => setMyQrVisible(false)}>
+            <Pressable style={styles.modalOverlayDim} onPress={() => setMyQrVisible(false)}>
+              <Pressable style={styles.qrModalCard} onPress={() => {}}>
+                <Text style={styles.modalTitle}>My QR</Text>
+                {myQrUrl ? (
+                  <Image source={{ uri: myQrUrl }} style={styles.qrImage} />
+                ) : (
+                  <Text style={styles.sectionEmpty}>No QR available.</Text>
+                )}
+                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 16 }]} onPress={() => setMyQrVisible(false)} accessibilityRole="button">
+                  <Text style={styles.modalCloseText}>Close</Text>
+                </TouchableOpacity>
+              </Pressable>
+            </Pressable>
+          </Modal>
         </View>
       </View>
     </GradientBackground>
@@ -455,7 +537,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: '2%',
-    marginBottom: 45,
+    marginBottom: 30,
   },
   avatarLeft: {
     width: 96,
@@ -477,6 +559,26 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     marginTop: 4,
     marginBottom: 0,
+  },
+  pointsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    marginHorizontal: '2%',
+  },
+  pointsText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  qrButton: {
+    width: 54,
+    height: 34,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabBar: {
     flexDirection: 'row',
@@ -526,9 +628,11 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   sectionEmpty: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.75)',
     fontStyle: 'italic',
     paddingVertical: 8,
+    marginTop: 8,
+    fontSize: 14,
   },
   sectionButton: {
     paddingVertical: 18,
@@ -760,5 +864,38 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
     marginHorizontal: 12,
+  },
+  qrModalCard: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: '#042028',
+    borderRadius: 12,
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  qrImage: {
+    width: 220,
+    height: 220,
+    marginTop: 6,
+    borderRadius: 8,
+    backgroundColor: '#fff'
+  },
+  /* duplicate sectionEmpty removed (consolidated above) */
+  modalCloseButton: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+  },
+  modalCloseText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

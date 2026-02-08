@@ -11,8 +11,8 @@ import Constants from 'expo-constants';
 const extra = (Constants as any)?.expoConfig?.extra ?? (Constants as any)?.manifest?.extra ?? {};
 
 // 🔧 DEV OVERRIDE: Temporarily force production URL for testing
-const DEV_OVERRIDE = 'http://192.168.1.10:4000'; // Set to null to disable
-//const DEV_OVERRIDE = 'https://grvz-app.onrender.com'; // Set to null to disable
+//const DEV_OVERRIDE = 'http://192.168.1.10:4000'; // Set to null to disable
+const DEV_OVERRIDE = 'https://grvz-app.onrender.com'; // Set to null to disable
 
 export const API_URL: string =
   DEV_OVERRIDE ||
