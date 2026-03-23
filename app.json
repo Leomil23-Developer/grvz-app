@@ -39,7 +39,7 @@
           "photosPermission": "Allow GRVZ app to save your QR code to photos",
           "savePhotosPermission": "Allow GRVZ app to save your QR code to photos",
           "isAccessMediaLocationEnabled": true,
-          "androidMediaTypes": ["photo", "video"]
+          "androidMediaTypes": ["photo", "video", "audio"]
         }
       ]
     ],
