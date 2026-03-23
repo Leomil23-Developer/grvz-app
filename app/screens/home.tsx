@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView, RefreshControl, Platform, StatusBar, Alert, Modal, Pressable, ActivityIndicator } from "react-native";
 import * as Clipboard from 'expo-clipboard';
+import { Paths, File } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Camera as CameraModule, CameraView } from 'expo-camera';
 import GradientBackground from "../../components/background"; 
@@ -76,6 +78,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
   const [myQrVisible, setMyQrVisible] = useState(false);
   const [myQrUrl, setMyQrUrl] = useState<string | null>(null);
   const [myQrPayload, setMyQrPayload] = useState<any | null>(null);
+  const [qrLoading, setQrLoading] = useState(false);
 
   const fetchMemberAndShowQr = async () => {
     if (!user?.id) { Alert.alert('Not logged in', 'Please login to view your QR'); return; }
@@ -96,14 +99,49 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
     }
   };
 
-  const copyQrPayload = async () => {
-    if (!myQrPayload) return;
+  const fetchMemberQr = async () => {
+    if (!user?.id) return;
+    setQrLoading(true);
     try {
-      await Clipboard.setStringAsync(JSON.stringify(myQrPayload));
-      Alert.alert('Copied', 'Member data copied to clipboard');
+      const res = await fetch(`${API_URL}/api/members/account/${user.id}/qr`, { headers: { 'X-User-Id': user.id } });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('No member record found');
+        return;
+      }
+      setMyQrPayload(data.payload);
+      setMyQrUrl(`data:image/png;base64,${data.pngBase64}`);
     } catch (e) {
-      console.error('clipboard error', e);
-      Alert.alert('Error', 'Unable to copy data');
+      console.error('fetchMemberQr error', e);
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  const downloadQrCode = async () => {
+    if (!myQrUrl) return;
+    try {
+      // Request media library permissions
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission denied', 'Please grant media library permission to download QR code');
+        return;
+      }
+
+      // Extract base64 data from data URI
+      const base64Data = myQrUrl.replace(/^data:image\/png;base64,/, '');
+      const filename = `GRVZ_QR_${user?.fullname || 'member'}_${Date.now()}.png`;
+      const file = new File(Paths.cache, filename);
+
+      // Write the base64 data to a file
+      await file.write(base64Data, { encoding: 'base64' });
+
+      // Save to media library
+      await MediaLibrary.createAssetAsync(file.uri);
+      Alert.alert('Downloaded', 'QR code saved to gallery');
+    } catch (e) {
+      console.error('download error', e);
+      Alert.alert('Error', 'Unable to download QR code');
     }
   };
   const fetchEvents = async () => {
@@ -132,7 +170,13 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
       try {
         const r = await fetch(`${API_URL}/api/accounts/${user.id}/isAdmin`);
         const j = await r.json();
-        setIsAdmin(Boolean(j.isAdmin));
+        const adminStatus = Boolean(j.isAdmin);
+        setIsAdmin(adminStatus);
+        
+        // If not admin, fetch QR code
+        if (!adminStatus) {
+          fetchMemberQr();
+        }
       } catch (e) {
         console.error('isAdmin fetch error', e);
         setIsAdmin(false);
@@ -260,33 +304,62 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                 </TouchableOpacity>
               ) : null}
 
-              {events.length > 0 && <Text style={styles.listTitle}>List of Events</Text>}
+              {isAdmin && events.length > 0 && <Text style={styles.listTitle}>List of Events</Text>}
+              {!isAdmin && <Text style={styles.listTitle}>My QR Code</Text>}
             </View>
 
-            {events.length > 0 ? (
+            {isAdmin ? (
+              events.length > 0 ? (
+                <ScrollView 
+                  style={styles.eventsScrollView} 
+                  refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
+                  showsVerticalScrollIndicator={true}
+                >
+                  <View style={styles.eventsList}>
+                    {events.map((ev: any) => (
+                      <TouchableOpacity style={styles.eventItem} key={ev.id} onPress={() => handleEventPress(ev)} accessibilityRole="button" accessibilityLabel={`Open scanner for ${ev.name}`}>
+                        <View style={styles.eventRowLeft}>
+                          <Text style={styles.eventTitle}>{ev.name}</Text>
+                          <Text style={styles.eventMeta}>{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : '—'}{ev.Chapters?.chapter_name ? ` • Hosted by ${ev.Chapters.chapter_name}` : ''}</Text>
+                        </View>
+
+                        <View style={styles.attendeeBadge}>
+                          <Text style={styles.attendeeBadgeText}>{ev._count?.Attendance ?? 0}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))} 
+                  </View>
+                </ScrollView>
+              ) : eventsLoaded ? (
+                <Text style={styles.sectionEmpty}>No events available.</Text>
+              ) : null
+            ) : (
               <ScrollView 
                 style={styles.eventsScrollView} 
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
-                showsVerticalScrollIndicator={true}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
               >
-                <View style={styles.eventsList}>
-                  {events.map((ev: any) => (
-              <TouchableOpacity style={styles.eventItem} key={ev.id} onPress={() => handleEventPress(ev)} accessibilityRole="button" accessibilityLabel={`Open scanner for ${ev.name}`}>
-                    <View style={styles.eventRowLeft}>
-                      <Text style={styles.eventTitle}>{ev.name}</Text>
-                      <Text style={styles.eventMeta}>{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : '—'}{ev.Chapters?.chapter_name ? ` • Hosted by ${ev.Chapters.chapter_name}` : ''}</Text>
-                    </View>
-
-                    <View style={styles.attendeeBadge}>
-                      <Text style={styles.attendeeBadgeText}>{ev._count?.Attendance ?? 0}</Text>
-                    </View>
-                  </TouchableOpacity>
-                  ))} 
-                </View>
+                {qrLoading ? (
+                  <ActivityIndicator size="large" color="#06b6d4" style={{ marginTop: 40 }} />
+                ) : myQrUrl ? (
+                  <>
+                    <Image source={{ uri: myQrUrl }} style={styles.qrImageLarge} />
+                    <TouchableOpacity 
+                      style={styles.copyButton} 
+                      onPress={downloadQrCode} 
+                      accessibilityRole="button"
+                      accessibilityLabel="Download QR code"
+                    >
+                      <MaterialIcons name="download" size={20} color="#fff" />
+                      <Text style={styles.copyButtonText}>Download QR Code</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <Text style={styles.sectionEmpty}>No QR code available.</Text>
+                )}
               </ScrollView>
-            ) : eventsLoaded ? (
-              <Text style={styles.sectionEmpty}>No events available.</Text>
-            ) : null}
+            )}
           </View> 
 
           {scannerVisible && (
@@ -327,8 +400,8 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                   <Text style={styles.sectionEmpty}>No QR available.</Text>
                 )}
 
-                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 12 }]} onPress={copyQrPayload} accessibilityRole="button">
-                  <Text style={styles.modalCloseText}>Copy Data</Text>
+                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 12 }]} onPress={downloadQrCode} accessibilityRole="button">
+                  <Text style={styles.modalCloseText}>Download QR Code</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 8 }]} onPress={() => setMyQrVisible(false)} accessibilityRole="button">
@@ -674,5 +747,27 @@ const styles = StyleSheet.create({
     marginTop: 6,
     borderRadius: 8,
     backgroundColor: '#fff'
+  },
+  qrImageLarge: {
+    width: 280,
+    height: 280,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    marginTop: 10,
+  },
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(6,182,212,0.15)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 24,
+    gap: 8,
+  },
+  copyButtonText: {
+    color: '#06b6d4',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

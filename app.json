@@ -24,8 +24,25 @@
         "backgroundColor": "#1c5161"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.imleyy.grvzapp"
+      "package": "com.imleyy.grvzapp",
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow GRVZ app to save your QR code to photos",
+          "savePhotosPermission": "Allow GRVZ app to save your QR code to photos",
+          "isAccessMediaLocationEnabled": true,
+          "androidMediaTypes": ["photo", "video"]
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/GRVZLogo.png"
     },
