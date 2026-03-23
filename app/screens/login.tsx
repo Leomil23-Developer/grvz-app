@@ -1,8 +1,13 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityIndicator, Linking } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import GradientBackground from "../../components/background"; 
 import { API_URL } from '../config';
+
+const STORAGE_KEY_USERNAME = '@grvz_username';
+const STORAGE_KEY_PASSWORD = '@grvz_password';
+const STORAGE_KEY_REMEMBER = '@grvz_remember';
 
 export default function Login({ onLoginSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +15,101 @@ export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState(__DEV__ ? 'admin-leyy' : '');
   const [password, setPassword] = useState(__DEV__ ? 'Leomil39' : '');
   const [loading, setLoading] = useState(false);
+  const [autoLoggingIn, setAutoLoggingIn] = useState(true);
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    loadSavedCredentials();
+  }, []);
+
+  const loadSavedCredentials = async () => {
+    try {
+      const savedRemember = await AsyncStorage.getItem(STORAGE_KEY_REMEMBER);
+      if (savedRemember === 'true') {
+        const savedUsername = await AsyncStorage.getItem(STORAGE_KEY_USERNAME);
+        const savedPassword = await AsyncStorage.getItem(STORAGE_KEY_PASSWORD);
+        
+        if (savedUsername && savedPassword) {
+          setUsername(savedUsername);
+          setPassword(savedPassword);
+          setRememberMe(true);
+          
+          // Attempt auto-login
+          await attemptAutoLogin(savedUsername, savedPassword);
+        } else {
+          setAutoLoggingIn(false);
+        }
+      } else {
+        setAutoLoggingIn(false);
+      }
+    } catch (error) {
+      console.error('Error loading saved credentials:', error);
+      setAutoLoggingIn(false);
+    }
+  };
+
+  const attemptAutoLogin = async (savedUsername: string, savedPassword: string) => {
+    try {
+      console.log('🔄 Attempting auto-login for:', savedUsername);
+      
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: savedUsername, password: savedPassword }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.user) {
+        console.log('✅ Auto-login successful');
+        onLoginSuccess(data.user);
+      } else {
+        console.log('❌ Auto-login failed, clearing credentials');
+        // Clear invalid credentials
+        await clearCredentials();
+        setRememberMe(false);
+      }
+    } catch (err) {
+      console.error('❌ Auto-login error:', err);
+      // Don't show alert for auto-login failures, just proceed to login screen
+    } finally {
+      setAutoLoggingIn(false);
+    }
+  };
+
+  const saveCredentials = async () => {
+    try {
+      if (rememberMe) {
+        await AsyncStorage.setItem(STORAGE_KEY_USERNAME, username);
+        await AsyncStorage.setItem(STORAGE_KEY_PASSWORD, password);
+        await AsyncStorage.setItem(STORAGE_KEY_REMEMBER, 'true');
+      } else {
+        await clearCredentials();
+      }
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+    }
+  };
+
+  const clearCredentials = async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY_USERNAME);
+      await AsyncStorage.removeItem(STORAGE_KEY_PASSWORD);
+      await AsyncStorage.removeItem(STORAGE_KEY_REMEMBER);
+    } catch (error) {
+      console.error('Error clearing credentials:', error);
+    }
+  };
+
+  const handleRememberMeToggle = () => {
+    const newValue = !rememberMe;
+    setRememberMe(newValue);
+    
+    // If unchecking, clear saved credentials immediately
+    if (!newValue) {
+      clearCredentials();
+    }
+  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -33,9 +133,11 @@ export default function Login({ onLoginSuccess }) {
         return;
       }
 
+      // Save credentials if remember me is checked
+      await saveCredentials();
+
       // Store token and user data, then navigate to Home
       console.log('Auth response:', data);
-      // TODO: store tokens securely (AsyncStorage or secure store)
       onLoginSuccess(data.user);
     } catch (err) {
       console.error('❌ Login error:', err);
@@ -45,12 +147,27 @@ export default function Login({ onLoginSuccess }) {
     }
   }; 
 
+  // Show loading screen during auto-login
+  if (autoLoggingIn) {
+    return (
+      <GradientBackground>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Image source={require("../../assets/GRVZLogo.png")} style={styles.logo} resizeMode="contain" />
+            <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
+            <Text style={[styles.subtitle, { marginTop: 16 }]}>Logging you in...</Text>
+          </View>
+        </View>
+      </GradientBackground>
+    );
+  }
+
   return (
     <GradientBackground>
       <View style={styles.container}>
         <View style={styles.header}>
           <Image source={require("../../assets/GRVZLogo.png")} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.title}>Welcome to GRVZ Portal</Text>
+          <Text style={styles.title}>GRVZ Connect</Text>
           <Text style={styles.subtitle}>Please login to continue</Text>
         </View>
 
@@ -86,7 +203,7 @@ export default function Login({ onLoginSuccess }) {
           </View>
 
           <View style={styles.rememberRow}>
-            <TouchableOpacity style={styles.rememberToggle} onPress={() => setRememberMe((r) => !r)} accessibilityLabel={rememberMe ? "Uncheck Remember me" : "Check Remember me"}>
+            <TouchableOpacity style={styles.rememberToggle} onPress={handleRememberMeToggle} accessibilityLabel={rememberMe ? "Uncheck Remember me" : "Check Remember me"}>
               <MaterialIcons name={rememberMe ? "check-box" : "check-box-outline-blank"} size={22} color="rgba(255,255,255,0.95)" />
             </TouchableOpacity>
             <Text style={styles.rememberText}>Remember me</Text>
@@ -116,24 +233,24 @@ export default function Login({ onLoginSuccess }) {
           <View style={styles.socialRow}>
             <TouchableOpacity
               style={styles.socialButton}
-              onPress={() => console.log('Facebook login')}
-              accessibilityLabel="Login with Facebook"
+              onPress={() => Linking.openURL('https://www.facebook.com/GRVZofficialpage')}
+              accessibilityLabel="Visit GRVZ on Facebook"
             >
               <Image source={{ uri: 'https://img.icons8.com/color/48/000000/facebook-new.png' }} style={styles.socialLogo} resizeMode="contain" />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.socialButton}
-              onPress={() => console.log('Discord login')}
-              accessibilityLabel="Login with Discord"
+              onPress={() => Linking.openURL('https://discord.gg/96MkGq3s')}
+              accessibilityLabel="Join GRVZ on Discord"
             >
               <Image source={{ uri: 'https://img.icons8.com/color/48/000000/discord-logo.png' }} style={styles.socialLogo} resizeMode="contain" />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.socialButton}
-              onPress={() => console.log('TikTok login')}
-              accessibilityLabel="Login with TikTok"
+              onPress={() => Linking.openURL('https://www.tiktok.com/@grvz.crew')}
+              accessibilityLabel="Follow GRVZ on TikTok"
             >
               <Image source={{ uri: 'https://img.icons8.com/color/48/000000/tiktok--v1.png' }} style={styles.socialLogo} resizeMode="contain" />
             </TouchableOpacity>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from './app/screens/login';
 import Home from './app/screens/home';
 import Profile from './app/screens/profile';
@@ -21,7 +22,16 @@ export default function App() {
     setIsLoggedIn(true);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear saved credentials from AsyncStorage
+    try {
+      await AsyncStorage.removeItem('@grvz_username');
+      await AsyncStorage.removeItem('@grvz_password');
+      await AsyncStorage.removeItem('@grvz_remember');
+    } catch (error) {
+      console.error('Error clearing credentials on logout:', error);
+    }
+    
     setUser(null);
     setIsLoggedIn(false);
     setShowProfile(false);

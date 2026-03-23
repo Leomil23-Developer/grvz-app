@@ -281,6 +281,14 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
     }
   };
 
+  // Filter events to show only today's events for admins
+  const todayEvents = isAdmin ? events.filter((ev: any) => {
+    if (!ev.event_date) return false;
+    const eventDate = new Date(ev.event_date);
+    const today = new Date();
+    return eventDate.toDateString() === today.toDateString();
+  }) : [];
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.safeArea}>
@@ -304,19 +312,19 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                 </TouchableOpacity>
               ) : null}
 
-              {isAdmin && events.length > 0 && <Text style={styles.listTitle}>List of Events</Text>}
+              {isAdmin && todayEvents.length > 0 && <Text style={styles.listTitle}>Today's Events</Text>}
               {!isAdmin && <Text style={styles.listTitle}>My QR Code</Text>}
             </View>
 
             {isAdmin ? (
-              events.length > 0 ? (
+              todayEvents.length > 0 ? (
                 <ScrollView 
                   style={styles.eventsScrollView} 
                   refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
                   showsVerticalScrollIndicator={true}
                 >
                   <View style={styles.eventsList}>
-                    {events.map((ev: any) => (
+                    {todayEvents.map((ev: any) => (
                       <TouchableOpacity style={styles.eventItem} key={ev.id} onPress={() => handleEventPress(ev)} accessibilityRole="button" accessibilityLabel={`Open scanner for ${ev.name}`}>
                         <View style={styles.eventRowLeft}>
                           <Text style={styles.eventTitle}>{ev.name}</Text>
@@ -331,7 +339,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                   </View>
                 </ScrollView>
               ) : eventsLoaded ? (
-                <Text style={styles.sectionEmpty}>No events available.</Text>
+                <Text style={styles.sectionEmpty}>No events scheduled for today.</Text>
               ) : null
             ) : (
               <ScrollView 
@@ -343,18 +351,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                 {qrLoading ? (
                   <ActivityIndicator size="large" color="#06b6d4" style={{ marginTop: 40 }} />
                 ) : myQrUrl ? (
-                  <>
-                    <Image source={{ uri: myQrUrl }} style={styles.qrImageLarge} />
-                    <TouchableOpacity 
-                      style={styles.copyButton} 
-                      onPress={downloadQrCode} 
-                      accessibilityRole="button"
-                      accessibilityLabel="Download QR code"
-                    >
-                      <MaterialIcons name="download" size={20} color="#fff" />
-                      <Text style={styles.copyButtonText}>Download QR Code</Text>
-                    </TouchableOpacity>
-                  </>
+                  <Image source={{ uri: myQrUrl }} style={styles.qrImageLarge} />
                 ) : (
                   <Text style={styles.sectionEmpty}>No QR code available.</Text>
                 )}
@@ -400,11 +397,7 @@ export default function Home({ user, onLogout, onOpenProfile }: { user: any; onL
                   <Text style={styles.sectionEmpty}>No QR available.</Text>
                 )}
 
-                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 12 }]} onPress={downloadQrCode} accessibilityRole="button">
-                  <Text style={styles.modalCloseText}>Download QR Code</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 8 }]} onPress={() => setMyQrVisible(false)} accessibilityRole="button">
+                <TouchableOpacity style={[styles.modalCloseButton, { marginTop: 12 }]} onPress={() => setMyQrVisible(false)} accessibilityRole="button">
                   <Text style={styles.modalCloseText}>Close</Text>
                 </TouchableOpacity>
               </Pressable>
